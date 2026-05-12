@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "predeploy": "npm run build",
+    "predeploy": "npm run build -- --base=/quick-note",
     "deploy": "gh-pages -d dist --no-history"
   },
   "devDependencies": {
@@ -18,3 +18,4 @@
     "debounce": "^3.0.0"
   }
 }
+
