@@ -18,7 +18,8 @@
     "vite": "^8.0.12"
   },
   "dependencies": {
-    "debounce": "^3.0.0"
+    "debounce": "^3.0.0",
+    "nanoid": "^5.1.11",
+    "nanoid-dictionary": "^5.0.0"
   }
 }
-
