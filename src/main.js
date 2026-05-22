@@ -1,7 +1,8 @@
 import './style.css'
 import { setupTheme } from './modules/themeService'
-import { contentAutoSaver, loadContent } from './modules/contentService'
+import { setupEditor, loadContent } from './modules/contentService'
+import './components/ContentNavigator'
 
 setupTheme()
 loadContent()
-contentAutoSaver()
+setupEditor()

@@ -10,12 +10,13 @@
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(170, 59, 255, 0.5);
   --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  --shadow: rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
+
+  --navigator-bg: #efefef;
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
@@ -44,8 +45,9 @@
   --accent-bg: rgba(192, 132, 252, 0.15);
   --accent-border: rgba(192, 132, 252, 0.5);
   --social-bg: rgba(47, 48, 58, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+  --shadow: rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+
+  --navigator-bg: #26272d;
 
   #social .button-icon {
     filter: invert(1) brightness(2);
@@ -150,5 +152,63 @@ code {
   &:hover {
     background: var(--social-bg);
     color: var(--text-h);
+  }
+}
+
+content-navigator {
+  position: fixed;
+  background-color: var(--navigator-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  top: 10vh;
+  left: 0;
+  right: 0;
+  width: 60vw;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+
+  .search-container {
+    flex: 1 100%;
+  }
+
+  input.search-input {
+    font-family: var(--mono, 'Courier New');
+    color: var(--text);
+    background-color: var(--bg);
+    border: 0 solid;
+    width: 100%;
+    /*border-radius: 4px;*/
+    box-sizing: border-box;
+    outline-color: color-mix(in oklab, oklch(55.2% .016 285.938) 50%, transparent);
+    padding: 8px;
+  }
+
+  .content-list {
+    max-height: 280px;
+    overflow-y: scroll;
+
+    .list-item {
+      padding: 8px 12px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      &:first-child {
+        margin-top: 10px;
+      }
+
+      &.active {
+        background-color: var(--accent-bg);
+        color: var(--text-h);
+        outline: none;
+      }
+    }
   }
 }

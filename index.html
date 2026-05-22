@@ -10,5 +10,24 @@
   <body>
     <div class="page" autofocus contenteditable></div>
     <button id="theme-toggle">Toggle Theme</button>
+    <content-navigator style="display: none;">
+      <div class="search-container">
+        <input
+          class="search-input"
+          type="text"
+          name="quick-note-search"
+          role="combobox"
+          aria-expanded="true"
+          aria-autocomplete="list"
+          aria-controls="note-results"
+        />
+      </div>
+      <div class="content-list" id="note-results" role="listbox" aria-label="Search Results">
+        <!-- Items need a role="option" and unique IDs so the input can point to them -->
+        <div role="option" id="item-0" class="list-item">123</div>
+        <div role="option" id="item-1" class="list-item">Milestone</div>
+        <div role="option" id="item-2" class="list-item">Notes, etc</div>
+      </div>
+    </content-navigator>
   </body>
 </html>

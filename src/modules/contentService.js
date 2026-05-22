@@ -1,16 +1,10 @@
 import debounce from 'debounce'
-import contentid from './contentid'
+import contentManager from './contentManager'
+import { getContentRelativeUrl } from './contentUrlService'
 
-const STORAGE_REGISTRY_KEY = 'quick-note-registry'
-const STORAGE_KEY_PREFIX = 'content-'
-const MAX_ITEMS = 100
 const WAIT_TO_SAVE = 2000
 
 const contentElement = document.querySelector('body > .page')
-
-function contentStorageKey(id) {
-  return STORAGE_KEY_PREFIX + id
-}
 
 function detectContentId() {
   const searchParams = new URLSearchParams(document.location.search)
@@ -18,53 +12,45 @@ function detectContentId() {
 }
 
 function assignNewContentId() {
-  const id = contentid()
-  const newPath = document.location.pathname + `?note=${id}`
+  const id = contentManager.generateId()
+  const newPath = getContentRelativeUrl(id)
   history.replaceState(null, '', newPath)
   return id
 }
 
-function registerContentId(id) {
-  const registryRaw = localStorage.getItem(STORAGE_REGISTRY_KEY)
-  let registry;
-
-  try {
-    registry = JSON.parse(registryRaw)
-
-    if (!Array.isArray(registry)) {
-      registry = []
-    }
-  } catch (ex) {
-    registry = []
+function contentAutoSaver() {
+  const writeContents = () => {
+    const id = detectContentId()
+    contentManager.writeContent(id, contentElement.innerHTML)
+    console.log(`Changes saved (${id})...`)
   }
 
-  registry = registry.filter(item => item !== id)
-  registry.unshift(id)
+  contentElement.addEventListener('input', debounce(writeContents, WAIT_TO_SAVE))
+}
 
-  const newRegistry = registry.splice(0, MAX_ITEMS)
-  localStorage.setItem(STORAGE_REGISTRY_KEY, JSON.stringify(newRegistry))
+function setupKeyBindings() {
+  const contentNavigator = document.querySelector('body > content-navigator')
 
-  registry.forEach(item => localStorage.removeItem(contentStorageKey(item)))
+  contentElement.addEventListener('keydown', event => {
+    if (event.key === 'p' && event.metaKey === true) {
+      event.preventDefault()
+      contentNavigator.show()
+    }
+  })
 }
 
 export function loadContent() {
   const id = detectContentId()
 
   if (id) {
-    const savedContents = localStorage.getItem(contentStorageKey(id))
+    const savedContents = contentManager.readContent(id)
     contentElement.innerHTML = savedContents || ''
   } else {
     assignNewContentId()
   }
 }
 
-export function contentAutoSaver() {
-  const writeContents = () => {
-    const id = detectContentId()
-    localStorage.setItem(contentStorageKey(id), contentElement.innerHTML)
-    console.log(`Changes saved (${id})...`)
-    setTimeout(() => registerContentId(id), 0)
-  }
-
-  contentElement.addEventListener('input', debounce(writeContents, WAIT_TO_SAVE))
+export function setupEditor() {
+  contentAutoSaver()
+  setupKeyBindings()
 }
