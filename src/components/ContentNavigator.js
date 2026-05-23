@@ -16,7 +16,7 @@ class ContentNavigator extends HTMLElement {
   }
 
   connectedCallback() {
-    this.editor = document.querySelector('body > .page')
+    this.editor = document.querySelector('body > content-editor')
     this.searchInput = this.querySelector('input.search-input')
     this.noteResults = this.querySelector('#note-results')
 
@@ -26,8 +26,7 @@ class ContentNavigator extends HTMLElement {
   }
 
   show() {
-    this.savedCursorOffset = getCursorOffset(this.editor)
-    this.savedEditorContent = this.editor.innerHTML
+    this.prepareEditor()
     this.loadItems()
     this.render()
     this.searchInput.value = ''
@@ -38,6 +37,8 @@ class ContentNavigator extends HTMLElement {
   hide() {
     this.style.setProperty('display', 'none')
     this.editor.focus()
+    this.editor.removeEventListener('click', this.onEditorClicked)
+    this.onEditorClicked = null
 
     this.savedEditorContent = null
     this.savedCursorOffset = null
@@ -50,6 +51,8 @@ class ContentNavigator extends HTMLElement {
     this.editor.innerHTML = this.savedEditorContent
     setCursorOffset(this.editor, this.savedCursorOffset)
     this.editor.focus()
+    this.editor.removeEventListener('click', this.onEditorClicked)
+    this.onEditorClicked = null
 
     this.savedEditorContent = null
     this.savedCursorOffset = null
@@ -199,6 +202,22 @@ class ContentNavigator extends HTMLElement {
       const activeItemContent = contentManager.readContent(id)
       this.editor.innerHTML = activeItemContent
     }
+  }
+
+  prepareEditor() {
+    this.savedCursorOffset = getCursorOffset(this.editor)
+    this.savedEditorContent = this.editor.innerHTML
+
+    this.onEditorClicked = () => {
+      if (this.activeIndex > -1 && this.activeIndex < this.items.length) {
+        const { id } = this.items[this.activeIndex]
+        this.openItem(id)
+      } else {
+        this.hide()
+      }
+    }
+
+    this.editor.addEventListener('click', this.onEditorClicked, { once: true })
   }
 }
 
