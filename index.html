@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/quick-note/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>quick-note</title>
+    <script type="module" crossorigin src="/quick-note/assets/index-D5FWr28e.js"></script>
+    <link rel="stylesheet" crossorigin href="/quick-note/assets/index-D68qoo1P.css">
+  </head>
+  <body>
+    <content-editor autofocus contenteditable></content-editor>
+    <button id="theme-toggle">Toggle Theme</button>
+    <content-navigator style="display: none;">
+      <div class="search-container">
+        <input
+          class="search-input"
+          type="text"
+          name="quick-note-search"
+          autocomplete="off"
+          role="combobox"
+          aria-expanded="true"
+          aria-autocomplete="list"
+          aria-controls="note-results"
+        />
+      </div>
+      <div class="content-list" id="note-results" role="listbox" aria-label="Search Results"></div>
+    </content-navigator>
+  </body>
+</html>
