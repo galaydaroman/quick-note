@@ -1,4 +1,5 @@
 import contentManager from '../modules/contentManager'
+import { createIcons, Trash } from 'lucide'
 import { getCursorOffset, setCursorOffset } from '../modules/cursorOffsetService'
 import { getContentRelativeUrl } from '../modules/contentUrlService'
 import { parseHtmlTopText } from '../modules/contentParser'
@@ -81,7 +82,14 @@ class ContentNavigator extends HTMLElement {
 
   createItemNode(id, title) {
     const tempElement = document.createElement('div')
-    tempElement.innerHTML = `<div role="option" id="item-${id}" class="list-item">${title}</div>`
+    tempElement.innerHTML = `
+      <div role="option" id="item-${id}" class="list-item">
+        <div class="item-title">${title}</div>
+        <div class="item-remove">
+          <i data-lucide="trash"></i>
+        </div>
+      </div>
+    `
 
     const node = tempElement.children[0]
 
@@ -90,7 +98,24 @@ class ContentNavigator extends HTMLElement {
       this.openItem(id)
     })
 
+    const removeIcon = node.querySelector('.item-remove')
+
+    if (removeIcon) {
+      removeIcon.addEventListener('click', event => {
+        event.preventDefault()
+        event.stopPropagation()
+        this.removeItem(id)
+      })
+    }
+
     return node
+  }
+
+  removeItem(id) {
+    contentManager.deleteContent(id)
+    this.loadItems()
+    this.searchHandler()
+    this.searchInput.focus()
   }
 
   render() {
@@ -100,6 +125,8 @@ class ContentNavigator extends HTMLElement {
       node.classList.remove('active')
       this.noteResults.appendChild(node)
     })
+
+    this.setupIcons()
   }
 
   searchHandler() {
@@ -218,6 +245,14 @@ class ContentNavigator extends HTMLElement {
     }
 
     this.editor.addEventListener('click', this.onEditorClicked, { once: true })
+  }
+
+  setupIcons() {
+    createIcons({
+      icons: {
+        Trash
+      }
+    })
   }
 }
 

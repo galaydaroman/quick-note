@@ -28,6 +28,11 @@ class ContentManager {
     setTimeout(() => this.registerContentId(id), 0)
   }
 
+  deleteContent(id) {
+    this.storage.removeItem(this.contentStorageKey(id))
+    this.unregisterContentId(id)
+  }
+
   allContentIds() {
     const raw = this.storage.getItem(STORAGE_REGISTRY_KEY)
     let registry;
@@ -56,6 +61,12 @@ class ContentManager {
     registry.forEach(item => {
       this.storage.removeItem(this.contentStorageKey(item))
     })
+  }
+
+  unregisterContentId(id) {
+    const registry = this.allContentIds()
+    const newRegistry = registry.filter(item => item !== id)
+    this.storage.setItem(STORAGE_REGISTRY_KEY, JSON.stringify(newRegistry))
   }
 }
 

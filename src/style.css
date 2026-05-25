@@ -17,16 +17,17 @@
   --mono: ui-monospace, Consolas, monospace;
 
   --navigator-bg: #efefef;
+  --danger-color: #ab1212;
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: light dark;
+  color-scheme: light;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /*-webkit-font-smoothing: antialiased;*/
+  /*-moz-osx-font-smoothing: grayscale;*/
   font-size: 16px;
 
   @media (max-width: 1024px) {
@@ -36,6 +37,7 @@
 
 /*@media (prefers-color-scheme: dark) {*/
 .dark {
+  color-scheme: dark;
   --text: #9ca3af;
   --text-h: #f3f4f6;
   --bg: #16171d;
@@ -48,6 +50,7 @@
   --shadow: rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
 
   --navigator-bg: #26272d;
+  --danger-color: #cc9595;
 
   #social .button-icon {
     filter: invert(1) brightness(2);
@@ -132,7 +135,7 @@ content-editor {
   display: block;
   padding: var(--main-padding);
   font-family: var(--mono, 'Courier New');
-  /*font-family: 'Courier New';*/
+  font-family: 'Courier New';
   min-height: calc(100vh - 2*var(--main-padding));
 
   &:focus-visible {
@@ -194,19 +197,23 @@ content-navigator {
 
   .content-list {
     max-height: 280px;
-    overflow-y: scroll;
+    overflow-y: auto;
 
     .list-item {
-      padding: 8px 12px;
-      cursor: pointer;
+      display: flex;
+      flex-direction: row;
+      padding: 2px 12px;
       border-radius: 6px;
       transition: background-color 0.2s ease;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
 
       &:first-child {
         margin-top: 10px;
+      }
+
+      &:hover {
+        .item-remove {
+          display: block;
+        }
       }
 
       &.active {
@@ -214,6 +221,35 @@ content-navigator {
         color: var(--text-h);
         outline: none;
       }
+
+      .item-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex-grow: 1;
+        padding-top: 6px;
+        padding-bottom: 6px;
+      }
+
+      .item-remove {
+        display: none;
+        cursor: pointer;
+        height: 20px;
+        padding: 6px;
+        border-radius: 4px;
+        background-color: rgba(120, 120, 120, 0.15);
+
+        > .lucide {
+          color: var(--danger-color);
+        }
+      }
     }
   }
+}
+
+.lucide {
+  color: var(--accent);
+  width: 16px;
+  height: 16px;
+  stroke-width: 2px;
 }

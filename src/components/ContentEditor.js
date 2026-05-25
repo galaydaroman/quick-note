@@ -17,10 +17,17 @@ class ContentEditor extends HTMLElement {
     this.addEventListener('input', this.onEditorChange)
 
     this.addEventListener('keydown', event => {
-      if (event.key === 'p' && (event.metaKey === true || event.ctrlKey === true)) {
-        event.preventDefault()
-        this.contentNavigator.show()
-        setTimeout(() => this.onEditorChange.flush(), 0)
+      if (event.metaKey === true || event.ctrlKey === true) {
+        if (event.key === 'p') {
+          event.preventDefault()
+          this.contentNavigator.show()
+          setTimeout(() => this.onEditorChange.flush(), 0)
+        } else if (event.key === 'n') {
+          event.preventDefault()
+          this.onEditorChange.flush()
+          this.innerHTML = ''
+          this.generatePageContentId()
+        }
       }
     })
 
