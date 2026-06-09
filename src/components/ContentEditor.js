@@ -2,8 +2,10 @@ import debounce from 'debounce'
 import contentManager from '../modules/contentManager'
 import { getContentRelativeUrl } from '../modules/contentUrlService'
 import { getCursorOffset, setCursorOffset } from '../modules/cursorOffsetService'
+import { parseHtmlTopText } from '../modules/contentParser'
 
 const WAIT_TO_SAVE = 2000
+const MAX_TITLE_LENGTH = 16
 
 class ContentEditor extends HTMLElement {
   constructor() {
@@ -13,6 +15,7 @@ class ContentEditor extends HTMLElement {
   connectedCallback() {
     this.contentNavigator = document.querySelector('body > content-navigator')
     this.onEditorChange = debounce(this.saveContent.bind(this), WAIT_TO_SAVE)
+    this.defaultTabTitle = document.title
 
     this.initializeContent()
     this.addEventListener('input', this.onEditorChange)
@@ -28,8 +31,8 @@ class ContentEditor extends HTMLElement {
     const id = this.detectPageContentId()
 
     if (id) {
-      const savedContents = contentManager.readContent(id)
-      this.innerHTML = savedContents || ''
+      const content = contentManager.readContent(id)
+      this.setContent(content)
     } else {
       this.generatePageContentId()
     }
@@ -44,7 +47,7 @@ class ContentEditor extends HTMLElement {
       } else if (event.key === 'n') {
         event.preventDefault()
         this.onEditorChange.flush()
-        this.innerHTML = ''
+        this.setContent('')
         this.generatePageContentId()
       }
     }
@@ -59,9 +62,7 @@ class ContentEditor extends HTMLElement {
         if (event.newValue === null) {
           // key was deleted
         } else {
-          const cursorOffset = getCursorOffset(this)
-          this.innerHTML = event.newValue
-          setCursorOffset(this, cursorOffset)
+          this.setContent(event.newValue, { preserveCursorPosition: true })
         }
       } else if (event.key === null) {
         // key (and all storage) was cleaned
@@ -87,11 +88,44 @@ class ContentEditor extends HTMLElement {
     return id
   }
 
+  setContent(text, options = {}) {
+    const preserveCursorPosition = options.preserveCursorPosition || false
+    let cursorOffset = 0;
+
+    if (preserveCursorPosition) {
+      cursorOffset = getCursorOffset(this)
+    }
+
+    this.innerHTML = text || ''
+
+    if (preserveCursorPosition && cursorOffset > 0) {
+      setCursorOffset(this, cursorOffset)
+    }
+
+    setTimeout(this.updateTabTitle.bind(this), 0)
+  }
+
   saveContent() {
     const id = this.detectPageContentId()
     contentManager.writeContent(id, this.innerHTML)
     const contentSizeKb = Math.round(10 * this.innerHTML.length / 1024) / 10
     console.log(`Changes saved "${id}" / ${contentSizeKb}kb ...`)
+
+    setTimeout(this.updateTabTitle.bind(this), 0)
+  }
+
+  updateTabTitle() {
+    let newTitle = parseHtmlTopText(this.innerHTML) || ''
+
+    if (newTitle.length > MAX_TITLE_LENGTH) {
+      newTitle = newTitle.slice(0, MAX_TITLE_LENGTH - 3).trim() + '...'
+    }
+
+    if (newTitle.length) {
+      document.title = [newTitle, this.defaultTabTitle].join(' - ')
+    } else {
+      document.title = this.defaultTabTitle
+    }
   }
 }
 

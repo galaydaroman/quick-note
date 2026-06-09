@@ -49,16 +49,9 @@ class ContentNavigator extends HTMLElement {
 
   hideAndRestore() {
     this.style.setProperty('display', 'none')
-    this.editor.innerHTML = this.savedEditorContent
+    this.editor.setContent(this.savedEditorContent)
     setCursorOffset(this.editor, this.savedCursorOffset)
-    this.editor.focus()
-    this.editor.removeEventListener('click', this.onEditorClicked)
-    this.onEditorClicked = null
-
-    this.savedEditorContent = null
-    this.savedCursorOffset = null
-    this.activeIndex = -1
-    this.previousActiveIndex = -1
+    this.hide()
   }
 
   loadItems() {
@@ -94,7 +87,6 @@ class ContentNavigator extends HTMLElement {
     const node = tempElement.children[0]
 
     node.addEventListener('click', () => {
-      this.renderItemContent(id)
       this.openItem(id)
     })
 
@@ -184,6 +176,7 @@ class ContentNavigator extends HTMLElement {
       this.hideAndRestore()
     } else {
       history.pushState(null, '', url)
+      this.editor.initializeContent()
       this.hide()
     }
   }
@@ -226,8 +219,8 @@ class ContentNavigator extends HTMLElement {
   // TODO: this needs to load from "this.savedEditorContent" as well
   renderItemContent(id) {
     if (id) {
-      const activeItemContent = contentManager.readContent(id)
-      this.editor.innerHTML = activeItemContent
+      const content = contentManager.readContent(id)
+      this.editor.innerHTML = content
     }
   }
 
