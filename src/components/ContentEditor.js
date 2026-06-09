@@ -6,6 +6,7 @@ import { parseHtmlTopText } from '../modules/contentParser'
 
 const WAIT_TO_SAVE = 2000
 const MAX_TITLE_LENGTH = 16
+const PREFIX_NOTSAVED_TITLE = '*'
 
 class ContentEditor extends HTMLElement {
   constructor() {
@@ -61,11 +62,13 @@ class ContentEditor extends HTMLElement {
       if (event.key === storageKey) {
         if (event.newValue === null) {
           // key was deleted
+          this.updateTabTitle()
         } else {
           this.setContent(event.newValue, { preserveCursorPosition: true })
         }
       } else if (event.key === null) {
         // key (and all storage) was cleaned
+        this.updateTabTitle()
       }
     }
   }
@@ -114,7 +117,16 @@ class ContentEditor extends HTMLElement {
     setTimeout(this.updateTabTitle.bind(this), 0)
   }
 
+  notifyContentWasDeleted(id) {
+    if (id === this.detectPageContentId()) {
+      this.updateTabTitle()
+    }
+  }
+
   updateTabTitle() {
+    const id = this.detectPageContentId()
+    const markAsNotSaved = !contentManager.allContentIds().includes(id)
+
     let newTitle = parseHtmlTopText(this.innerHTML) || ''
 
     if (newTitle.length > MAX_TITLE_LENGTH) {
@@ -122,6 +134,10 @@ class ContentEditor extends HTMLElement {
     }
 
     if (newTitle.length) {
+      if (markAsNotSaved) {
+        newTitle = PREFIX_NOTSAVED_TITLE + newTitle
+      }
+
       document.title = [newTitle, this.defaultTabTitle].join(' - ')
     } else {
       document.title = this.defaultTabTitle

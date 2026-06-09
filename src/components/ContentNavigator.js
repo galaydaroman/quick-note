@@ -105,6 +105,7 @@ class ContentNavigator extends HTMLElement {
 
   removeItem(id) {
     contentManager.deleteContent(id)
+    this.editor.notifyContentWasDeleted(id)
     this.loadItems()
     this.searchHandler()
     this.searchInput.focus()
