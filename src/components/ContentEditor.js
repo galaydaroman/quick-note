@@ -1,6 +1,7 @@
 import debounce from 'debounce'
 import contentManager from '../modules/contentManager'
 import { getContentRelativeUrl } from '../modules/contentUrlService'
+import { getCursorOffset, setCursorOffset } from '../modules/cursorOffsetService'
 
 const WAIT_TO_SAVE = 2000
 
@@ -15,23 +16,12 @@ class ContentEditor extends HTMLElement {
 
     this.initializeContent()
     this.addEventListener('input', this.onEditorChange)
-
-    this.addEventListener('keydown', event => {
-      if (event.metaKey === true || event.ctrlKey === true) {
-        if (event.key === 'p') {
-          event.preventDefault()
-          this.contentNavigator.show()
-          setTimeout(() => this.onEditorChange.flush(), 0)
-        } else if (event.key === 'n') {
-          event.preventDefault()
-          this.onEditorChange.flush()
-          this.innerHTML = ''
-          this.generatePageContentId()
-        }
-      }
-    })
+    this.addEventListener('keydown', this.onEditorKeyDown.bind(this))
 
     window.addEventListener('popstate', this.initializeContent.bind(this))
+    window.addEventListener('storage', this.onStorageChange.bind(this))
+
+    document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this))
   }
 
   initializeContent() {
@@ -42,6 +32,46 @@ class ContentEditor extends HTMLElement {
       this.innerHTML = savedContents || ''
     } else {
       this.generatePageContentId()
+    }
+  }
+
+  onEditorKeyDown(event) {
+    if (event.metaKey === true || event.ctrlKey === true) {
+      if (event.key === 'p') {
+        event.preventDefault()
+        this.contentNavigator.show()
+        setTimeout(() => this.onEditorChange.flush(), 0)
+      } else if (event.key === 'n') {
+        event.preventDefault()
+        this.onEditorChange.flush()
+        this.innerHTML = ''
+        this.generatePageContentId()
+      }
+    }
+  }
+
+  onStorageChange(event) {
+    if (event.storageArea === contentManager.storage) {
+      const id = this.detectPageContentId()
+      const storageKey = contentManager.contentStorageKey(id)
+
+      if (event.key === storageKey) {
+        if (event.newValue === null) {
+          // key was deleted
+        } else {
+          const cursorOffset = getCursorOffset(this)
+          this.innerHTML = event.newValue
+          setCursorOffset(this, cursorOffset)
+        }
+      } else if (event.key === null) {
+        // key (and all storage) was cleaned
+      }
+    }
+  }
+
+  onVisibilityChange() {
+    if (document.visibilityState === 'hidden') {
+      this.onEditorChange.flush()
     }
   }
 
